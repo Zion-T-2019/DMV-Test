@@ -1,9 +1,6 @@
 from xmlparser import XmlParser
 from PyQt5 import QtCore, QtGui, QtWidgets
 
-
-
-
 class ChoiceQuestion:
     def __init__(self, answer_comments):
         self.choices = []
