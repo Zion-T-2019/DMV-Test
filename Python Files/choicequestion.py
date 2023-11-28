@@ -12,5 +12,5 @@ class ChoiceQuestion:
     def set_answer_comments(answer_comments):
         pass
     
-    def display(QtLayout):
+    def display(QtLayout): 
         pass 
