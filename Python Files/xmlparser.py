@@ -4,7 +4,8 @@ from lxml import etree
 class XmlParser:
     def __init__(self, xml_file):
         ## pass and parse xml file 
-        
+        pass
+    
     def parse_questions(self):
         questions = []
 

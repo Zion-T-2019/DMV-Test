@@ -1,11 +1,11 @@
-from XMLParser import XMLParser
+from xmlparser import XmlParser
 import lxml
 
 def main():
     
     # Insert the path the xml
     xml_file = "questions.xml"
-    parser = XMLParser(xml_file)
+    parser = XmlParser(xml_file)
     questions = parser.parse_questions()
 
     # Print parsed information
