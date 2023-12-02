@@ -1,7 +1,7 @@
-import lxml
 from xmlparser import XmlParser
+import lxml
 import sys
-from DMVDriverTestUI import UiMainWin
+from dmvdrivertestUI import UiMainWin
 from PyQt5.QtWidgets import *
 
 def main():
@@ -14,7 +14,7 @@ def main():
     sys.exit(app.exec_())
     
     # Insert the path the xml
-    xml_file = "./florida_drivers_test.xml"
+    xml_file = "questions.xml"
     parser = XmlParser(xml_file)
     questions = parser.parse_questions()
 
