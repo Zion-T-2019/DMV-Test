@@ -10,10 +10,14 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtWidgets import QApplication
+# from choiceimagequestion import ChoiceImageQuestion
+from choicequestion import ChoiceQuestion
+from question import Question
 
 
 class UiMainWin(object):
-    def __init__(self):
+    def __init__(self, questions):
         self.centralwidget = None
         self.gridLayoutWidget = None
         self.gridLayout = None
@@ -28,31 +32,44 @@ class UiMainWin(object):
         self.opt_b = None
         self.opt_c = None
         self.opt_d = None
+        self.questions = questions
+        self.current_question_index = 0
+        self.correct_ans = 0
         
     def setup_ui(self, main_window):
         main_window.setObjectName("MainWindow")
-        main_window.resize(989, 548)
+        main_window.resize(990, 550)
         self.centralwidget = QtWidgets.QWidget(main_window)
         self.centralwidget.setObjectName("centralwidget")
+        
         self.gridLayoutWidget = QtWidgets.QWidget(self.centralwidget)
         self.gridLayoutWidget.setGeometry(QtCore.QRect(10, 10, 961, 521))
         self.gridLayoutWidget.setObjectName("gridLayoutWidget")
         self.gridLayout = QtWidgets.QGridLayout(self.gridLayoutWidget)
         self.gridLayout.setContentsMargins(7, 7, 7, 7)
         self.gridLayout.setObjectName("gridLayout")
+        
         self.index = QtWidgets.QLabel(self.gridLayoutWidget)
         self.index.setObjectName("index")
         self.gridLayout.addWidget(self.index, 5, 0, 1, 1)
+        
         self.quit_quiz = QtWidgets.QPushButton(self.gridLayoutWidget)
         self.quit_quiz.setObjectName("quit_quiz")
         self.gridLayout.addWidget(self.quit_quiz, 5, 2, 1, 1)
+        
+        self.quit_quiz.clicked.connect(QApplication.instance().quit)
+        
         self.next_quest = QtWidgets.QPushButton(self.gridLayoutWidget)
         self.next_quest.setObjectName("next_quest")
         self.gridLayout.addWidget(self.next_quest, 5, 1, 1, 1)
+        
+        self.next_quest.clicked.connect(self.next_question)
+
         self.question = QtWidgets.QLabel(self.gridLayoutWidget)
         self.question.setText("")
-        self.question.setPixmap(QtGui.QPixmap("images/bicycle.jpeg"))
+        self.question.setPixmap(QtGui.QPixmap(""))
         self.question.setScaledContents(True)
+        
         self.question.setObjectName("question")
         self.gridLayout.addWidget(self.question, 0, 0, 1, 3)
         self.question_index = QtWidgets.QLabel(self.gridLayoutWidget)
@@ -60,25 +77,38 @@ class UiMainWin(object):
         font.setPointSize(12)
         font.setBold(True)
         font.setWeight(75)
+        
         self.question_index.setFont(font)
         self.question_index.setTextInteractionFlags(QtCore.Qt.LinksAccessibleByMouse)
         self.question_index.setObjectName("question_index")
         self.gridLayout.addWidget(self.question_index, 1, 0, 1, 3)
+        
         self.ans_choice = QtWidgets.QFormLayout()
         self.ans_choice.setObjectName("ans_choice")
+        
         self.opt_a = QtWidgets.QRadioButton(self.gridLayoutWidget)
         self.opt_a.setObjectName("opt_a")
         self.ans_choice.setWidget(0, QtWidgets.QFormLayout.LabelRole, self.opt_a)
+        
         self.opt_b = QtWidgets.QRadioButton(self.gridLayoutWidget)
         self.opt_b.setObjectName("opt_b")
         self.ans_choice.setWidget(1, QtWidgets.QFormLayout.LabelRole, self.opt_b)
+        
         self.opt_c = QtWidgets.QRadioButton(self.gridLayoutWidget)
         self.opt_c.setObjectName("opt_c")
         self.ans_choice.setWidget(2, QtWidgets.QFormLayout.LabelRole, self.opt_c)
+        
         self.opt_d = QtWidgets.QRadioButton(self.gridLayoutWidget)
         self.opt_d.setObjectName("opt_d")
         self.ans_choice.setWidget(3, QtWidgets.QFormLayout.LabelRole, self.opt_d)
+        
         self.gridLayout.addLayout(self.ans_choice, 2, 0, 1, 3)
+        
+        self.opt_a.toggled.connect(self.answer_question)
+        self.opt_b.toggled.connect(self.answer_question)
+        self.opt_c.toggled.connect(self.answer_question)
+        self.opt_d.toggled.connect(self.answer_question)
+        
         self.ans_comment = QtWidgets.QLabel(self.gridLayoutWidget)
         size_policy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
         size_policy.setHorizontalStretch(0)
@@ -87,6 +117,8 @@ class UiMainWin(object):
         self.ans_comment.setSizePolicy(size_policy)
         self.ans_comment.setTextInteractionFlags(QtCore.Qt.LinksAccessibleByMouse)
         self.ans_comment.setObjectName("ans_comment")
+        self.ans_comment.hide()
+        
         self.gridLayout.addWidget(self.ans_comment, 3, 0, 1, 3)
         spacerItem = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.gridLayout.addItem(spacerItem, 4, 0, 1, 3)
@@ -94,16 +126,80 @@ class UiMainWin(object):
 
         self.retranslate_ui(main_window)
         QtCore.QMetaObject.connectSlotsByName(main_window)
+        self.load_question(self.current_question_index)
 
     def retranslate_ui(self, main_window):
         _translate = QtCore.QCoreApplication.translate
         main_window.setWindowTitle(_translate("MainWindow", "MainWindow"))
-        self.index.setText(_translate("MainWindow", "Question 1 of 40 | Correct: 0/40"))
+      #  self.index.setText(_translate("MainWindow", "Question 1 of 40 | Correct: 0/40"))
         self.quit_quiz.setText(_translate("MainWindow", "Quit Quiz"))
         self.next_quest.setText(_translate("MainWindow", "Next Question"))
-        self.question_index.setText(_translate("MainWindow", "This sign warns you"))
-        self.opt_a.setText(_translate("MainWindow", "to move onto the shoulder at high speed"))
-        self.opt_b.setText(_translate("MainWindow", "not to leave the pavement"))
-        self.opt_c.setText(_translate("MainWindow", "to increase your following distance to six seconds"))
-        self.opt_d.setText(_translate("MainWindow", "to move onto the shoulder at reduced speed"))
-        self.ans_comment.setText(_translate("MainWindow", "This sign warns you about a soft shoulder"))
+        
+    def check_answer(self, selected_answer_index):
+        # Get the selected answer from the list of answers for the current question
+        selected_answer = self.questions[self.current_question_index]['answers'][selected_answer_index]['correct']
+
+        # Check if the selected answer is correct and update the correct counter
+        if selected_answer == 'true':
+            self.correct_ans += 1
+
+        return selected_answer == 'true'
+    
+        
+        
+    def load_question(self, question_index):
+        # Loads the question and answer choices into the UI
+        self.question_index.setText(self.questions[question_index]['questionText'])
+        self.question.setPixmap(QtGui.QPixmap(self.questions[question_index]['questionImage']))
+        self.opt_a.setText(self.questions[question_index]['answers'][0]['text'])
+        self.opt_b.setText(self.questions[question_index]['answers'][1]['text'])
+        self.opt_c.setText(self.questions[question_index]['answers'][2]['text'])
+        self.opt_d.setText(self.questions[question_index]['answers'][3]['text'])
+        self.ans_comment.setText(self.questions[question_index]['answerComments'])
+        self.index.setText(f"Question {self.current_question_index + 1} of 40 |"
+                           f"Correct: {self.correct_ans}/40")
+
+    def answer_question(self):
+        # Once one of the radio buttons is selected it disables the rest and displays the answer comment
+        buttons = [self.opt_a, self.opt_b, self.opt_c, self.opt_d]
+        selected_ans = None
+        for button in buttons:
+            if button.isChecked():
+                selected_ans = buttons.index(button)
+                for b in buttons:
+                    if b != button:
+                        b.setDisabled(True)
+                else:
+                    b.setDisabled(True)
+            if selected_ans is not None:
+                is_correct = self.check_answer(selected_ans)
+                if is_correct:
+                    self.index.setText(f"Question {self.current_question_index + 1} of 40 |"
+                                       f"Correct: {self.correct_ans}/40")
+                else:
+                    self.index.setText(f"Question {self.current_question_index + 1} of 40 |"
+                                       f"Correct: {self.correct_ans + 1}/40")    
+            self.ans_comment.show()
+            
+    def next_question(self):
+        # Once the next question button is pressed it will display the next question and reset the radio buttons
+        self.ans_comment.hide()
+        buttons = [self.opt_a, self.opt_b, self.opt_c, self.opt_d]
+        self.current_question_index += 1
+        if self.current_question_index < 40:
+            self.index.setText(f"Question {self.current_question_index + 1} of 40 |"
+                               f"Correct: {self.correct_ans}/40")
+        else:
+            self.index.setText(f"Quiz Complete | Correct: {self.correct_ans}/40")
+        for button in buttons:
+            button.setEnabled(True)
+            if button.isChecked():
+                button.setChecked(False)
+        if self.current_question_index + 1 > 40:
+            QApplication.instance().quit()    
+        self.load_question(self.current_question_index)
+            
+        
+    
+        
+            
